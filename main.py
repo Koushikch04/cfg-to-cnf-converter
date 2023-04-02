@@ -1,3 +1,5 @@
+import re
+
 takeInput = True
 print("Enter end to end giving grammar input")
 variables = []
@@ -13,9 +15,9 @@ while takeInput:
     rightHandSide = splitGrammar[1].split("|")
     for i in range(0, 2):
         for char in splitGrammar[i]:
-            if char.isupper() and char not in variables:
+            if char.isupper() and char not in variables and char != 'e':
                 variables.append(char)
-            if char.islower() and char not in terminals:
+            if char.islower() and char not in terminals and char != 'e':
                 terminals.append(char)
     if not splitGrammar[0] in language:
         language[splitGrammar[0]] = []
@@ -89,7 +91,8 @@ def eliminate_non_reachable():
 
 # eliminate_non_reachable()
 # print("After removing unreachable symbols, the terminals are,", variables, terminals)
-eliminate_non_generating()
+# eliminate_non_generating()
+
 
 def removeDuplicates(char):
     temp = []
@@ -97,6 +100,7 @@ def removeDuplicates(char):
         if i not in temp:
             temp.append(i)
     language[char] = temp
+
 
 def appendTo(char, each):
     temp = []
@@ -112,10 +116,12 @@ def appendTo(char, each):
 def eliminate_unit_productions():
     changes = True
     temp = []
+    removable = []
     temp.extend(variables)
     while changes:
         changes = False
         for char in temp:
+            print("temp is:", temp)
             global key
             key = 1
             print(char,
@@ -123,18 +129,80 @@ def eliminate_unit_productions():
             curr = language[char]
             print("curr is ", curr)
             for each in curr:
-                print("each is:",each)
+                print("each is:", each)
                 print(curr)
                 if each.isupper() and len(each) == 1 and char != each:
                     key = 0
                     # print("type of curr is:", type(each), type(char))
                     print(char, " ", each)
                     # print(language[char],language[each])
+                    print("appending ",char," to ",each)
                     appendTo(char, each)
                     changes = True
             if key == 1:
-                print("removed char",char)
-                temp.remove(char)
+                print("removed char", char)
+                removable.extend(char)
+            print("temp is:", temp)
+
+
+
+
+def nullable_variables():
+    nullable = []
+    changes = True
+    while changes:
+        changes = False
+        for temp in variables:
+            if temp in language.keys():
+                curr = language[temp]
+                if 'e' in curr:
+                    if temp not in nullable:
+                        nullable.append(temp)
+                        changes = True
+                for i in curr:
+                    global key
+                    key = 1
+                    for l in i:
+                        if l not in nullable:
+                            key = 0
+                    if key == 1:
+                        if temp not in nullable:
+                            nullable.append(temp)
+                            changes = True
+                    print("i is:", i)
+                    print(nullable)
+    return nullable
+
+
+def eliminate_null_productions():
+    temp = nullable_variables()
+    for char in temp:
+        if len(language[char]) == 1:
+            global key
+            key = 1
+        for var in variables:
+            curr = language[var]
+            count = 0
+            for l in curr:
+                if char in l and len(l) != 1:
+                    temporary = [m.start() for m in re.finditer(char, l)]
+                    index_count = len(temporary)
+                    count += index_count
+                    for i in range(1, index_count + 1):
+                        character = l.replace(char, "", i)
+                        if character not in curr:
+                            curr.append(character)
+                    for i in temporary:
+                        character = l[:i] + "" + l[i + 1:]
+                        if character not in curr:
+                            curr.append(character)
+
+            if count == 0 and curr.count(char):
+                language[var].append('e')
+        if 'e' in language[char]:
+            language[char].remove('e')
+        if len(language[char]) == 0:
+            del language[char]
 
 
 eliminate_unit_productions()
@@ -143,5 +211,23 @@ eliminate_unit_productions()
 # appendTo("E","T")
 # appendTo("T","F")
 # print(type("T"),type("F"))
+# print(language)
+# print("variables are", variables)
+
+
+# print(nullable_variables())
+
+# for var in temp:
+#     for char in variables:
+#         curr = language[char]
+#         for l in curr:
+#             if var in l and len(l) != 1:
+#                 # print("type of l is:",type(l))
+#                 curr.append(l.replace(var, ""))
+#             print("hello world")
+
+# print(language["S"])
+eliminate_null_productions()
 print(language)
-print("variables are",variables)
+
+# print(nullable_variables())
