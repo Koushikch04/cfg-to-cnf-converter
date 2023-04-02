@@ -50,7 +50,7 @@ def eliminate_non_generating():
                     key = 1
                     for l in k:
                         print(temp)
-                        print("l is",l,l not in generating,key)
+                        print("l is", l, l not in generating, key)
                         if l not in generating:
                             key = 0
                             break
@@ -90,3 +90,58 @@ def eliminate_non_reachable():
 # eliminate_non_reachable()
 # print("After removing unreachable symbols, the terminals are,", variables, terminals)
 eliminate_non_generating()
+
+def removeDuplicates(char):
+    temp = []
+    for i in language[char]:
+        if i not in temp:
+            temp.append(i)
+    language[char] = temp
+
+def appendTo(char, each):
+    temp = []
+    temp.extend(language[each])
+    temp.extend(language[char])
+    temp.remove(each)
+    if char in temp:
+        temp.remove(char)
+    language[char] = temp
+    removeDuplicates(char)
+
+
+def eliminate_unit_productions():
+    changes = True
+    temp = []
+    temp.extend(variables)
+    while changes:
+        changes = False
+        for char in temp:
+            global key
+            key = 1
+            print(char,
+                  "--------------------------------------------------------------------------------------------------------------------------------------------vvvv")
+            curr = language[char]
+            print("curr is ", curr)
+            for each in curr:
+                print("each is:",each)
+                print(curr)
+                if each.isupper() and len(each) == 1 and char != each:
+                    key = 0
+                    # print("type of curr is:", type(each), type(char))
+                    print(char, " ", each)
+                    # print(language[char],language[each])
+                    appendTo(char, each)
+                    changes = True
+            if key == 1:
+                print("removed char",char)
+                temp.remove(char)
+
+
+eliminate_unit_productions()
+# appendTo("F","I")
+# appendTo("F","E")
+# appendTo("E","T")
+# appendTo("T","F")
+# print(type("T"),type("F"))
+print(language)
+print("variables are",variables)
