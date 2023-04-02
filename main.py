@@ -1,4 +1,5 @@
 import re
+import random as rand
 
 takeInput = True
 print("Enter end to end giving grammar input")
@@ -36,10 +37,15 @@ print(language)
 
 
 def eliminate_non_generating():
+    print(
+        "eliminating non-generating symbols----------------------------------------------------------------------------------------")
+    print(language)
+    print(variables)
     changes = True
     non_generating = []
     for char in variables:
         if char not in language.keys():
+            print(char, "not in dictionary")
             non_generating.append(char)
     generating = terminals
     while changes:
@@ -60,10 +66,20 @@ def eliminate_non_generating():
                         generating.append(char)
                         changes = True
                         break
-                    else:
-                        print(char)
+
+    for i in non_generating:
+        if i in variables:
+            variables.remove(i)
     print("generating symbols are", generating)
+    print("non-generating symbols are", non_generating)
     print("non generating symbols are eliminated")
+    for char in variables:
+        curr = language[char]
+        for temp in curr:
+            for i in temp:
+                if i in non_generating:
+                    curr.remove(temp)
+                    break
 
 
 def eliminate_non_reachable():
@@ -82,6 +98,16 @@ def eliminate_non_reachable():
             if var in language.keys():
                 del language[var]
             variables.remove(var)
+        if var in language.keys():
+            char = language[var]
+            for temp in char:
+                key = 1
+                for l in temp:
+                    if l not in reachable:
+                        key = 0
+                if key == 0:
+                    language[var].remove(temp)
+
     for ter in terminals:
         if ter not in reachable:
             terminals.remove(ter)
@@ -103,10 +129,17 @@ def removeDuplicates(char):
 
 
 def appendTo(char, each):
+    print(language[char])
+    print(language[each])
     temp = []
     temp.extend(language[each])
     temp.extend(language[char])
-    temp.remove(each)
+    print(temp)
+    for i in range(0,temp.count(each)):
+        temp.remove(each)
+    print(each)
+    print("in append function")
+    print(temp)
     if char in temp:
         temp.remove(char)
     language[char] = temp
@@ -136,15 +169,15 @@ def eliminate_unit_productions():
                     # print("type of curr is:", type(each), type(char))
                     print(char, " ", each)
                     # print(language[char],language[each])
-                    print("appending ",char," to ",each)
-                    appendTo(char, each)
-                    changes = True
+                    if char in language.keys() and each in language.keys():
+                        print("appending ", char, " to ", each)
+                        appendTo(char, each)
+                        changes = True
             if key == 1:
                 print("removed char", char)
+                # temp.remove(char)
                 removable.extend(char)
             print("temp is:", temp)
-
-
 
 
 def nullable_variables():
@@ -181,31 +214,85 @@ def eliminate_null_productions():
             global key
             key = 1
         for var in variables:
-            curr = language[var]
-            count = 0
-            for l in curr:
-                if char in l and len(l) != 1:
-                    temporary = [m.start() for m in re.finditer(char, l)]
-                    index_count = len(temporary)
-                    count += index_count
-                    for i in range(1, index_count + 1):
-                        character = l.replace(char, "", i)
-                        if character not in curr:
-                            curr.append(character)
-                    for i in temporary:
-                        character = l[:i] + "" + l[i + 1:]
-                        if character not in curr:
-                            curr.append(character)
+            if var in language.keys():
+                curr = language[var]
+                count = 0
+                for l in curr:
+                    if char in l and len(l) != 1:
+                        temporary = [m.start() for m in re.finditer(char, l)]
+                        index_count = len(temporary)
+                        count += index_count
+                        for i in range(1, index_count + 1):
+                            character = l.replace(char, "", i)
+                            if character not in curr:
+                                curr.append(character)
+                        for i in temporary:
+                            character = l[:i] + "" + l[i + 1:]
+                            if character not in curr:
+                                curr.append(character)
 
-            if count == 0 and curr.count(char):
-                language[var].append('e')
+                    if count == 0 and curr.count(char):
+                        language[var].append('e')
         if 'e' in language[char]:
             language[char].remove('e')
         if len(language[char]) == 0:
             del language[char]
+    if "" in language["S"]:
+        language["S"].remove("")
+        language["S"].append("e")
 
 
-eliminate_unit_productions()
+def random_alphabet():
+    change = True
+    while change:
+        num = rand.randint(65, 90)
+        char = chr(num)
+        if char not in variables:
+            change = False
+    return char
+
+
+def conversion_to_chomsky_normal_form():
+    addedPairs = {}
+    for i in language.copy():
+        char = language[i]
+        for temp in char:
+            if len(temp) > 2 and temp.isupper():
+                while len(temp) != 2:
+                    curr = random_alphabet()
+                    j = temp[0:2]
+                    if j not in addedPairs:
+                        addedPairs[j] = curr
+                        char.remove(temp)
+                        temp = curr + temp[2:]
+                        char.append(temp)
+                        language[curr] = [j]
+                        variables.append(curr)
+                    else:
+                        char.remove(temp)
+                        temp = addedPairs[j] + temp[2:]
+                        char.append(temp)
+                    print(char, temp)
+            elif len(temp) >= 2:
+                for i in range(0, len(temp)):
+                    curr = random_alphabet()
+                    if temp[i].islower():
+                        if temp[i] not in addedPairs:
+                            char.remove(temp)
+                            j = temp[i]
+                            temp = temp[:i] + curr + temp[i + 1:]
+                            char.append(temp)
+                            addedPairs[j] = curr
+                            language[curr] = [j]
+                            variables.append(curr)
+                        else:
+                            char.remove(temp)
+                            temp = temp[:i] + addedPairs[temp[i]] + temp[i + 1:]
+                            char.append(temp)
+    print(addedPairs)
+
+
+# eliminate_unit_productions()
 # appendTo("F","I")
 # appendTo("F","E")
 # appendTo("E","T")
@@ -228,6 +315,16 @@ eliminate_unit_productions()
 
 # print(language["S"])
 eliminate_null_productions()
+eliminate_non_generating()
+eliminate_non_reachable()
+print("eliminating unit productions:-----------------------------------------------------")
 print(language)
-
+eliminate_unit_productions()
+# appendTo("A","S")
+# print(language)
+conversion_to_chomsky_normal_form()
+conversion_to_chomsky_normal_form()
+# print(random_alphabet())
+print(language)
+# print(variables)
 # print(nullable_variables())
