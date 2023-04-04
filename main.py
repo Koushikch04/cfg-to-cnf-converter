@@ -17,13 +17,13 @@ while takeInput:
     for i in range(0, 2):
         for char in splitGrammar[i]:
             if char.isupper() and char not in variables and char != 'e':
-                variables.append(char)
+                variables.append(char.strip())
             if char.islower() and char not in terminals and char != 'e':
-                terminals.append(char)
+                terminals.append(char.strip())
     if not splitGrammar[0] in language:
         language[splitGrammar[0]] = []
     for char in rightHandSide:
-        language[splitGrammar[0]].append(char)
+        language[splitGrammar[0]].append(char.strip())
 print("terminals are:", terminals, "variables are:", variables)
 print(language)
 
@@ -300,10 +300,14 @@ def conversion_to_chomsky_normal_form():
         change = False
         for i in language.copy():
             char = language[i]
+            for i in char:
+                char.remove(i)
+                char.append(i.strip())
             for temp in char:
                 if len(temp) > 2 and temp.isupper():
                     print("condition 1 satisfied")
                     while len(temp) != 2:
+                        print("length of temp is not 2",temp,len(temp),temp[0],temp[1],temp[2],"hello")
                         curr = random_alphabet()
                         j = temp[0:2]
                         if j not in addedPairs:
@@ -330,6 +334,7 @@ def conversion_to_chomsky_normal_form():
                                 j = temp[i]
                                 temp = temp[:i] + curr + temp[i + 1:]
                                 char.append(temp)
+                                print("added curr ",curr)
                                 addedPairs[j] = curr
                                 language[curr] = [j]
                                 variables.append(curr)
@@ -438,10 +443,19 @@ print(language)
 eliminate_unit_productions()
 # appendTo("A","S")
 # print(language)
+print(language)
+print("Before converting to chomsky normal form -----------------------------------------------------")
 conversion_to_chomsky_normal_form()
+# eliminate_unit_productions()
 # conversion_to_chomsky_normal_form()
 # print(random_alphabet()).
 print(language)
 # print(variables)
 # print(nullable_variables())
 cykAlgorithm("aa")
+
+print("printing language")
+for i in language.keys():
+    curr = language[i]
+    for j in curr:
+        print(i,"->",j," ",len(j))
