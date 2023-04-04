@@ -6,6 +6,8 @@ print("Enter end to end giving grammar input")
 variables = []
 terminals = []
 language = {}
+startState = "S"
+startStateChange = False
 global key
 while takeInput:
     grammar = input()
@@ -23,6 +25,12 @@ while takeInput:
     if not splitGrammar[0] in language:
         language[splitGrammar[0]] = []
     for char in rightHandSide:
+        if "S" in char.strip() and startState == "S":
+            startState = "S1"
+            language["S1"] = ["S"]
+            startStateChange = True
+            variables.append("S1")
+            print("new Start state added !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         language[splitGrammar[0]].append(char.strip())
 print("terminals are:", terminals, "variables are:", variables)
 print(language)
@@ -37,6 +45,7 @@ print(language)
 
 
 def eliminate_non_generating():
+    print(language)
     print(
         "eliminating non-generating symbols-------------------------------------------------------------------")
     print(language)
@@ -83,8 +92,8 @@ def eliminate_non_generating():
 
 
 def eliminate_non_reachable():
-    reachable = ["S"]
-    current = ["S"]
+    reachable = [startState]
+    current = [startState]
     while current:
         temp = language[current.pop()]
         for char in temp:
@@ -212,6 +221,7 @@ def nullable_variables():
                     print("i is:", i)
                     print(nullable)
                     print("variables are :", variables)
+    print("nullable variables are",nullable)
     return nullable
 
 
@@ -222,28 +232,31 @@ def eliminate_null_productions():
             global key
             key = 1
         for var in variables:
-            curr = language[var]
-            count = 0
-            for l in curr:
-                if char in l and len(l) != 1:
-                    temporary = [m.start() for m in re.finditer(char, l)]
-                    index_count = len(temporary)
-                    count += index_count
-                    for i in range(1, index_count + 1):
-                        character = l.replace(char, "", i)
-                        if character not in curr:
-                            curr.append(character)
-                    for i in temporary:
-                        character = l[:i] + "" + l[i + 1:]
-                        if character not in curr:
-                            curr.append(character)
+            if var in language.keys():
+                curr = language[var]
+                count = 0
+                for l in curr:
+                    if char in l and len(l) != 1:
+                        temporary = [m.start() for m in re.finditer(char, l)]
+                        index_count = len(temporary)
+                        count += index_count
+                        for i in range(1, index_count):
+                            character = l.replace(char, "", i)
+                            if character not in curr:
+                                curr.append(character)
+                        for i in temporary:
+                            character = l[:i] + "" + l[i + 1:]
+                            if character not in curr:
+                                curr.append(character)
 
-            if count == 0 and curr.count(char):
-                language[var].append('e')
+                if count == 0 and curr.count(char):
+                    language[var].append('e')
         if 'e' in language[char]:
             language[char].remove('e')
         if len(language[char]) == 0:
             del language[char]
+    if startState in temp and 'e' not in language[startState]:
+        language[startState].append("e")
 
 
 # def eliminate_null_productions():
@@ -307,7 +320,7 @@ def conversion_to_chomsky_normal_form():
                 if len(temp) > 2 and temp.isupper():
                     print("condition 1 satisfied")
                     while len(temp) != 2:
-                        print("length of temp is not 2",temp,len(temp),temp[0],temp[1],temp[2],"hello")
+                        print("length of temp is not 2", temp, len(temp), temp[0], temp[1], temp[2], "hello")
                         curr = random_alphabet()
                         j = temp[0:2]
                         if j not in addedPairs:
@@ -334,7 +347,7 @@ def conversion_to_chomsky_normal_form():
                                 j = temp[i]
                                 temp = temp[:i] + curr + temp[i + 1:]
                                 char.append(temp)
-                                print("added curr ",curr)
+                                print("added curr ", curr)
                                 addedPairs[j] = curr
                                 language[curr] = [j]
                                 variables.append(curr)
@@ -343,6 +356,11 @@ def conversion_to_chomsky_normal_form():
                                 temp = temp[:i] + addedPairs[temp[i]] + temp[i + 1:]
                                 char.append(temp)
                     change = True
+    for keys in language.keys():
+        temp = language[keys]
+        if keys in temp:
+            temp.remove(keys)
+
     print(addedPairs)
 
 
@@ -408,30 +426,33 @@ def cykAlgorithm(string):
                     curr = lang[temp]
                     for var in curr:
                         print(k)
-                        if var[0] in Matrix[i][k] and var[1] in Matrix[k+1][j]:
+                        if var[0] in Matrix[i][k] and var[1] in Matrix[k + 1][j]:
                             print("success!")
                             if temp not in Matrix[i][j]:
                                 Matrix[i][j] += temp
 
-    if 'S' in Matrix[0][strlen-1]:
+    if 'S' in Matrix[0][strlen - 1]:
         print("string is present in the grammar")
 
     print("In cyk algo:")
-    for i in range(0,strlen):
+    for i in range(0, strlen):
         j = strlen - i - 1
         temp = ""
-        for k in range(0,i+1):
-            temp = temp + Matrix[k][j+k]+" "
+        for k in range(0, i + 1):
+            temp = temp + Matrix[k][j + k] + " "
         print(temp)
-
-
-
-
-
-
 
         # temp = temp + Matrix[i][j] + " "
         # print(temp)
+
+
+def print_language():
+    if startStateChange:
+        print("The new Start State is:", startState)
+    else:
+        print("The start state is:", startState)
+    print("The grammar after converting to chomsky normal form is:")
+    print(language)
 
 
 # print(language["S"])
@@ -449,13 +470,13 @@ conversion_to_chomsky_normal_form()
 # eliminate_unit_productions()
 # conversion_to_chomsky_normal_form()
 # print(random_alphabet()).
-print(language)
+print_language()
 # print(variables)
 # print(nullable_variables())
-cykAlgorithm("aa")
+cykAlgorithm("b")
 
-print("printing language")
-for i in language.keys():
-    curr = language[i]
-    for j in curr:
-        print(i,"->",j," ",len(j))
+# print("printing language")
+# for i in language.keys():
+#     curr = language[i]
+#     for j in curr:
+#         print(i, "->", j, " ", len(j))
