@@ -2,11 +2,14 @@ import re
 import random as rand
 
 takeInput = True
-print("Enter end to end giving grammar input")
 variables = []
 terminals = []
 language = {}
-startState = "S"
+startState = input("Mention the start state with only uppercase:")
+while not startState.isupper():
+    startState = input("Wrong start state,please re-enter the start state containing only upper-case alphabets:")
+
+print("Enter e for null production and Enter end to end giving grammar input")
 startStateChange = False
 global key
 while takeInput:
@@ -263,6 +266,10 @@ def conversion_to_chomsky_normal_form():
 
 
 def cykAlgorithm(string):
+    strlen = len(string)
+    if not strlen > 0 or string.isnumeric():
+        print("Please Enter valid String that contains only alphabets")
+        exit()
     lang = {}
     for i in variables:
         curr = language[i]
@@ -272,7 +279,7 @@ def cykAlgorithm(string):
                     lang[i].append(var)
                 else:
                     lang[i] = [var]
-    strlen = len(string)
+
     Matrix = [["" for x in range(strlen)] for y in range(strlen)]
 
     for j in range(0, strlen):
@@ -286,13 +293,11 @@ def cykAlgorithm(string):
                 for temp in lang.keys():
                     curr = lang[temp]
                     for var in curr:
-                        print(k)
                         if var[0] in Matrix[i][k] and var[1] in Matrix[k + 1][j]:
-                            print("success!")
                             if temp not in Matrix[i][j]:
                                 Matrix[i][j] += temp
 
-    if 'S' in Matrix[0][strlen - 1]:
+    if strlen > 0 and 'S' in Matrix[0][strlen - 1]:
         print("string is present in the grammar")
     else:
         print("String is not present in the grammar")
@@ -312,7 +317,12 @@ def print_language():
     else:
         print("The start state is:", startState)
     print("The grammar after converting to chomsky normal form is:")
-    print(language)
+    for var in language.keys():
+        temp = language[var]
+        production = var +"->"
+        for curr in temp:
+            production = production + curr + "|"
+        print(production[:len(production)-1])
 
 
 eliminate_null_productions()
@@ -321,5 +331,5 @@ eliminate_non_reachable()
 eliminate_unit_productions()
 conversion_to_chomsky_normal_form()
 print_language()
-string = input("Enter any string to check if it is present in the language or not")
+string = input("Enter any string to check if it is present in the language or not:")
 cykAlgorithm(string)
