@@ -31,9 +31,9 @@ while takeInput:
     if not splitGrammar[0] in language:
         language[splitGrammar[0]] = []
     for char in rightHandSide:
-        if "S" in char.strip() and startState == "S":
+        if startState in char.strip() and not startStateChange:
+            language["S1"] = [startState]
             startState = "S1"
-            language["S1"] = ["S"]
             startStateChange = True
             variables.append("S1")
         language[splitGrammar[0]].append(char.strip())
@@ -319,10 +319,10 @@ def print_language():
     print("The grammar after converting to chomsky normal form is:")
     for var in language.keys():
         temp = language[var]
-        production = var +"->"
+        production = var + "->"
         for curr in temp:
             production = production + curr + "|"
-        print(production[:len(production)-1])
+        print(production[:len(production) - 1])
 
 
 eliminate_null_productions()
