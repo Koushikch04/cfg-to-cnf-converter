@@ -22,6 +22,9 @@ while takeInput:
                 variables.append(char.strip())
             if char.islower() and char not in terminals and char != 'e':
                 terminals.append(char.strip())
+            if char.isnumeric():
+                print("Please enter only alphabets. Numbers and special characters are not accepted by the grammar")
+                exit()
     if not splitGrammar[0] in language:
         language[splitGrammar[0]] = []
     for char in rightHandSide:
@@ -30,10 +33,9 @@ while takeInput:
             language["S1"] = ["S"]
             startStateChange = True
             variables.append("S1")
-            print("new Start state added !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         language[splitGrammar[0]].append(char.strip())
-print("terminals are:", terminals, "variables are:", variables)
-print(language)
+# print("terminals are:", terminals, "variables are:", variables)
+# print(language)
 
 
 # def sort_by_values_len(dict):
@@ -45,16 +47,16 @@ print(language)
 
 
 def eliminate_non_generating():
-    print(language)
-    print(
-        "eliminating non-generating symbols-------------------------------------------------------------------")
-    print(language)
-    print(variables)
+    # print(language)
+    # print(
+    #     "eliminating non-generating symbols-------------------------------------------------------------------")
+    # print(language)
+    # print(variables)
     changes = True
     non_generating = []
     for char in variables:
         if char not in language.keys():
-            print(char, "not in dictionary")
+            # print(char, "not in dictionary")
             non_generating.append(char)
     generating = terminals
     while changes:
@@ -66,8 +68,8 @@ def eliminate_non_generating():
                 for k in temp:
                     key = 1
                     for l in k:
-                        print(temp)
-                        print("l is", l, l not in generating, key)
+                        # print(temp)
+                        # print("l is", l, l not in generating, key)
                         if l not in generating:
                             key = 0
                             break
@@ -79,9 +81,9 @@ def eliminate_non_generating():
     for i in non_generating:
         if i in variables:
             variables.remove(i)
-    print("generating symbols are", generating)
-    print("non-generating symbols are", non_generating)
-    print("non generating symbols are eliminated")
+    # print("generating symbols are", generating)
+    # print("non-generating symbols are", non_generating)
+    # print("non generating symbols are eliminated")
     for char in variables:
         curr = language[char]
         for temp in curr:
@@ -121,7 +123,7 @@ def eliminate_non_reachable():
         if ter not in reachable:
             terminals.remove(ter)
 
-    print("non-reachable symbols are eliminated")
+    # print("non-reachable symbols are eliminated")
 
 
 # eliminate_non_reachable()
@@ -138,17 +140,17 @@ def removeDuplicates(char):
 
 
 def appendTo(char, each):
-    print(language[char])
-    print(language[each])
+    # print(language[char])
+    # print(language[each])
     temp = []
     temp.extend(language[each])
     temp.extend(language[char])
-    print(temp)
+    # print(temp)
     for i in range(0, temp.count(each)):
         temp.remove(each)
-    print(each)
-    print("in append function")
-    print(temp)
+    # print(each)
+    # print("in append function")
+    # print(temp)
     if char in temp:
         temp.remove(char)
     language[char] = temp
@@ -163,65 +165,65 @@ def eliminate_unit_productions():
     while changes:
         changes = False
         for char in temp:
-            print("temp is:", temp)
+            # print("temp is:", temp)
             global key
             key = 1
-            print(char,
-                  "--------------------------------------------------------------------------------------------------------------------------------------------vvvv")
+            # print(char,
+            #       "--------------------------------------------------------------------------------------------------------------------------------------------vvvv")
             curr = language[char]
-            print("curr is ", curr)
+            # print("curr is ", curr)
             for each in curr:
-                print("each is:", each)
-                print(curr)
+                # print("each is:", each)
+                # print(curr)
                 if each.isupper() and len(each) == 1 and char != each:
                     key = 0
                     # print("type of curr is:", type(each), type(char))
-                    print(char, " ", each)
+                    # print(char, " ", each)
                     # print(language[char],language[each])
                     if char in language.keys() and each in language.keys():
-                        print("appending ", char, " to ", each)
+                        # print("appending ", char, " to ", each)
                         appendTo(char, each)
                         changes = True
             if key == 1:
-                print("removed char", char)
+                # print("removed char", char)
                 # temp.remove(char)
                 removable.extend(char)
-            print("temp is:", temp)
+            # print("temp is:", temp)
 
 
 def nullable_variables():
     nullable = []
     changes = True
     while changes:
-        print("Changes = True")
+        # print("Changes = True")
         changes = False
         for temp in variables:
-            print(variables)
+            # print(variables)
             if temp in language.keys() and temp not in nullable:
                 curr = language[temp]
                 if 'e' in curr:
                     if temp not in nullable:
                         nullable.append(temp)
                         changes = True
-                        print("changes are made true 1")
+                        # print("changes are made true 1")
                 for i in curr:
                     global key
                     key = 1
                     for l in i:
-                        print("l is", l)
+                        # print("l is", l)
                         if l not in nullable:
                             key = 0
-                            print("key = 0")
+                            # print("key = 0")
                     if key == 1:
                         if temp not in nullable:
                             nullable.append(temp)
                             # changes = True
                             print("changes are made True 2")
                             # break
-                    print("i is:", i)
-                    print(nullable)
-                    print("variables are :", variables)
-    print("nullable variables are",nullable)
+                    # print("i is:", i)
+                    # print(nullable)
+                    # print("variables are :", variables)
+    # print("nullable variables are",nullable)
     return nullable
 
 
@@ -306,7 +308,7 @@ def random_alphabet():
 
 
 def conversion_to_chomsky_normal_form():
-    print("converting to chomsky normal form")
+    # print("converting to chomsky normal form")
     addedPairs = {}
     change = True
     while change:
@@ -318,9 +320,9 @@ def conversion_to_chomsky_normal_form():
                 char.append(i.strip())
             for temp in char:
                 if len(temp) > 2 and temp.isupper():
-                    print("condition 1 satisfied")
+                    # print("condition 1 satisfied")
                     while len(temp) != 2:
-                        print("length of temp is not 2", temp, len(temp), temp[0], temp[1], temp[2], "hello")
+                        # print("length of temp is not 2", temp, len(temp), temp[0], temp[1], temp[2], "hello")
                         curr = random_alphabet()
                         j = temp[0:2]
                         if j not in addedPairs:
@@ -334,11 +336,11 @@ def conversion_to_chomsky_normal_form():
                             char.remove(temp)
                             temp = addedPairs[j] + temp[2:]
                             char.append(temp)
-                        print(char, temp)
+                        # print(char, temp)
                     change = True
                 elif (len(temp) > 2 and not temp.isupper()) or (len(temp) == 2 and not temp.isupper()):
-                    print("condition 2 satisfied")
-                    print(temp)
+                    # print("condition 2 satisfied")
+                    # print(temp)
                     for i in range(0, len(temp)):
                         curr = random_alphabet()
                         if temp[i].islower():
@@ -347,7 +349,7 @@ def conversion_to_chomsky_normal_form():
                                 j = temp[i]
                                 temp = temp[:i] + curr + temp[i + 1:]
                                 char.append(temp)
-                                print("added curr ", curr)
+                                # print("added curr ", curr)
                                 addedPairs[j] = curr
                                 language[curr] = [j]
                                 variables.append(curr)
@@ -361,7 +363,7 @@ def conversion_to_chomsky_normal_form():
         if keys in temp:
             temp.remove(keys)
 
-    print(addedPairs)
+    # print(addedPairs)
 
 
 # eliminate_unit_productions()
@@ -460,11 +462,11 @@ eliminate_null_productions()
 eliminate_non_generating()
 eliminate_non_reachable()
 print("eliminating unit productions:-----------------------------------------------------")
-print(language)
+# print(language)
 eliminate_unit_productions()
 # appendTo("A","S")
 # print(language)
-print(language)
+# print(language)
 print("Before converting to chomsky normal form -----------------------------------------------------")
 conversion_to_chomsky_normal_form()
 # eliminate_unit_productions()
